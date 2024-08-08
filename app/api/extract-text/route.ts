@@ -3,9 +3,6 @@ import { getTextExtractor } from 'office-text-extractor';
 import { Worker } from 'worker_threads';
 import path from 'path';
 
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const file = formData.get('file') as File | null;
@@ -51,3 +48,9 @@ async function processPDF(buffer: ArrayBuffer): Promise<string> {
     worker.postMessage({ buffer: Buffer.from(buffer) });
   });
 }
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
