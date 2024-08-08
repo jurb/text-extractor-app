@@ -8,10 +8,11 @@ const nextConfig = {
         config.experiments = {
           ...config.experiments,
           topLevelAwait: true,
-        }
+        };
+        config.externals.push('pdf-parse');
       }
-      return config
+      return config;
     },
-  }
+  };
   
   export default nextConfig;

@@ -1,5 +1,5 @@
-import { parentPort } from 'worker_threads';
-import pdfParse from 'pdf-parse';
+const { parentPort } = require('worker_threads');
+const pdfParse = require('pdf-parse');
 
 if (parentPort) {
   parentPort.on('message', async (data) => {
