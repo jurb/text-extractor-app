@@ -28,26 +28,18 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ text });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('Error processing file:', error);
-    if (error instanceof Error) {
-      return NextResponse.json({ error: `Error processing file: ${error.message}`, stack: error.stack }, { status: 500 });
-    } else {
-      return NextResponse.json({ error: 'An unknown error occurred' }, { status: 500 });
-    }
+    return NextResponse.json({ error: `Error processing file: ${error.message}` }, { status: 500 });
   }
 }
 
 async function processPDF(buffer: ArrayBuffer): Promise<string> {
   return new Promise((resolve, reject) => {
-    const workerPath = path.resolve(process.cwd(), 'app/api/pdf-worker.js');
-    console.log('Worker path:', workerPath);
-    
-    const worker = new Worker(workerPath);
+    const worker = new Worker(path.resolve(process.cwd(), 'app/api/pdf-worker.js'));
 
     worker.on('message', (result) => {
       if (result.error) {
-        console.error('PDF processing error:', result.error);
         reject(new Error(result.error));
       } else {
         resolve(result.text);
@@ -55,7 +47,7 @@ async function processPDF(buffer: ArrayBuffer): Promise<string> {
       worker.terminate();
     });
 
-    worker.on('error', (error: Error) => {
+    worker.on('error', (error) => {
       console.error('Worker error:', error);
       reject(new Error(`PDF processing error: ${error.message}`));
     });
