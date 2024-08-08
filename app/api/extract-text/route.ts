@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ text });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error processing file:', error);
     return NextResponse.json({ error: `Error processing file: ${error.message}` }, { status: 500 });
   }
