@@ -40,21 +40,10 @@ export async function POST(request: NextRequest) {
 
 async function processPDF(buffer: ArrayBuffer): Promise<string> {
   return new Promise((resolve, reject) => {
-    const workerPath = path.join(process.cwd(), 'app', 'api', 'pdf-worker.js');
+    const workerPath = path.resolve(process.cwd(), 'app/api/pdf-worker.js');
     console.log('Worker path:', workerPath);
     
-    let worker: Worker;
-    try {
-      worker = new Worker(workerPath);
-    } catch (error: unknown) {
-      console.error('Error creating worker:', error);
-      if (error instanceof Error) {
-        reject(new Error(`Failed to create PDF processing worker: ${error.message}`));
-      } else {
-        reject(new Error('Failed to create PDF processing worker due to an unknown error'));
-      }
-      return;
-    }
+    const worker = new Worker(workerPath);
 
     worker.on('message', (result) => {
       if (result.error) {
@@ -69,19 +58,8 @@ async function processPDF(buffer: ArrayBuffer): Promise<string> {
     worker.on('error', (error: Error) => {
       console.error('Worker error:', error);
       reject(new Error(`PDF processing error: ${error.message}`));
-      worker.terminate();
     });
 
-    try {
-      worker.postMessage({ buffer: Buffer.from(buffer) });
-    } catch (error: unknown) {
-      console.error('Error posting message to worker:', error);
-      if (error instanceof Error) {
-        reject(new Error(`Failed to send data to PDF processing worker: ${error.message}`));
-      } else {
-        reject(new Error('Failed to send data to PDF processing worker due to an unknown error'));
-      }
-      worker.terminate();
-    }
+    worker.postMessage({ buffer: Buffer.from(buffer) });
   });
 }
