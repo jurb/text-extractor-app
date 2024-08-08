@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ text });
   } catch (error) {
     console.error('Error processing file:', error);
-    return NextResponse.json({ error: `Error processing file: ${error.message}` }, { status: 500 });
+    return NextResponse.json({ error: 'Error processing file' }, { status: 500 });
   }
 }
 
@@ -47,11 +47,7 @@ async function processPDF(buffer: ArrayBuffer): Promise<string> {
       worker.terminate();
     });
 
-    worker.on('error', (error) => {
-      console.error('Worker error:', error);
-      reject(new Error(`PDF processing error: ${error.message}`));
-    });
-
+    worker.on('error', reject);
     worker.postMessage({ buffer: Buffer.from(buffer) });
   });
 }
