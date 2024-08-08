@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 
 export default function Home() {
   const [text, setText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
 
-  const handleFile = async (file: File) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     setIsLoading(true);
@@ -22,49 +22,23 @@ export default function Home() {
       const data = await response.json();
       setText(data.text);
     } catch (error) {
-      console.error('Fout:', error);
-      setText('Fout bij het extraheren van tekst');
+      console.error('Error:', error);
+      setText('Error extracting text');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const onDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
-  const onDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
-
-  const onDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const files = e.dataTransfer.files;
-    if (files.length) {
-      handleFile(files[0]);
-    }
-  }, []);
-
   return (
     <main className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">Tekst Extractor</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">Tekst uit bestand halen</h1>
         <div className="bg-white shadow-sm rounded-lg p-6">
-          <div 
-            className={`mb-6 border-2 border-dashed rounded-md p-6 ${
-              isDragging ? 'border-indigo-600 bg-indigo-50' : 'border-gray-300'
-            }`}
-            onDragOver={onDragOver}
-            onDragLeave={onDragLeave}
-            onDrop={onDrop}
-          >
-            {/* <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700 mb-2">
-              Upload een bestand of sleep het hierheen
-            </label> */}
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6">
+          <div className="mb-6">
+            <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700 mb-2">
+              Upload a file
+            </label>
+            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
               <div className="space-y-1 text-center">
                 <svg
                   className="mx-auto h-12 w-12 text-gray-400"
@@ -91,13 +65,13 @@ export default function Home() {
                       name="file-upload"
                       type="file"
                       className="sr-only"
-                      onChange={(e) => e.target.files && handleFile(e.target.files[0])}
+                      onChange={handleFileUpload}
                       accept=".docx,.pptx,.xlsx,.pdf"
                     />
                   </label>
-                  <p className="pl-1">of sleep het hierheen</p>
+                  <p className="pl-1">of sleep hier een bestand naartoe</p>
                 </div>
-                <p className="text-xs text-gray-500">DOCX, PPTX, XLSX, PDF tot 10MB</p>
+                <p className="text-xs text-gray-500">DOCX, PPTX, XLSX, PDF, niet groter dan 10MB</p>
               </div>
             </div>
           </div>
@@ -107,7 +81,7 @@ export default function Home() {
             </div>
           ) : text ? (
             <div className="mt-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-2">Geëxtraheerde Tekst:</h2>
+              <h2 className="text-lg font-medium text-gray-900 mb-2">Tekst uit bestand:</h2>
               <div className="bg-gray-50 rounded-md p-4">
                 <p className="text-sm text-gray-700 whitespace-pre-wrap">{text}</p>
               </div>
